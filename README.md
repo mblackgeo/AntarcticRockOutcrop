@@ -4,7 +4,8 @@ This repository contains a python script for automatically differentiating areas
 
 ## Installation
 
-Clone a copy of the repository and edit the python script.
+- Clone a copy of the repository, or
+- [Download the latest release](https://github.com/mblack2xl/AntarcticRockOutcrop/releases/latest) 
 
 ## Requires
 
