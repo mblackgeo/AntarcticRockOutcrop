@@ -31,8 +31,8 @@ To avoid any problems please ensure all files have the same geospatial referenci
 
 ## History
 
-11 May 2016: Uploaded to GitHub
-03 Nov 2015: Created ArcPy script
+- 11 May 2016: Uploaded to GitHub
+- 03 Nov 2015: Created ArcPy script
 
 ## Credits
 
