@@ -36,7 +36,7 @@ To avoid any problems please ensure all files have the same geospatial referenci
 
 ## Credits
 
-Burton-Johnson, A., Black, M., Fretwell, P. T., and Kaluza-Gilbert, J.: A fully automated methodology for differentiating rock from snow, clouds and sea in Antarctica from Landsat imagery: A new rock outcrop map and area estimation for the entire Antarctic continent, The Cryosphere Discuss., doi:10.5194/tc-2016-56, in review, 2016. 
+Burton-Johnson, A., Black, M., Fretwell, P. T., and Kaluza-Gilbert, J.: A fully automated methodology for differentiating rock from snow, clouds and sea in Antarctica from Landsat imagery: A new rock outcrop map and area estimation for the entire Antarctic continent, *The Cryosphere Discuss.*, [doi:10.5194/tc-2016-56](http://dx.doi.org/10.5194/tc-2016-56), in review, 2016. 
 
 ## License
 
