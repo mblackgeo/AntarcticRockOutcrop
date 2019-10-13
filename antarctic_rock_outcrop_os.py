@@ -105,6 +105,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys, os, time
 import rasterio as rio
+import fiona
 
 # set arcpy environment variables
 # arcpy.env.overwriteOutput = True #uncomment to allow arcpy to overwrite outputs
@@ -126,6 +127,10 @@ tiles = open(landsatTileList).read().splitlines()
 startTime = time.ctime()
 # TODO add logging for script
 print "ArcPy Rock masking script started: %s" % startTime
+
+# load coast mask
+with fiona.open(coastMaskShpfile, "r") as coast:
+    coast_shapes = [feature["geometry"] for feature in coast]
 
 # TODO refactor contents of loop into functions to separate io from layer processing steps
 # loop through each raster
@@ -169,9 +174,11 @@ for i in range(len(tiles)):
         """
 
 	# extract by mask on coastline
+        """
 	coastMask = ExtractByMask(B2, coastMaskShpfile)
 	coastMaskBin = coastMask > 0
-
+        """
+        coastMask = rasterio.mask.mask(B2, coast_shapes, crop=True)
 	# print the coast mask
 	toc = time.time();
 	print(" Loaded & Coast Masked (%.02fs)." % (toc - tic)),
