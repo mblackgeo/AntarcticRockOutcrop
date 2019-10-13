@@ -1,5 +1,6 @@
 # Antarctic Rock Outcrop
 
+This fork aims to remove the arcpy dependency for this script and replacing it with rasterio. This will remove the requirement of an ESRI license.
 This repository contains a python script for automatically differentiating areas of rock outcrop using Landsat-8 data. The python script applies the method of Burton-Johnson, et al. (2016) to automatically identify rock outcrop areas from top of atmosphere corrected Landsat-8 tiles from Antarctica. Relevant modifications should be made for application to other Landsat datasets where band numbers may change.
 
 ## Installation
@@ -9,6 +10,7 @@ This repository contains a python script for automatically differentiating areas
 
 ## Requires
 
+- rasterio (add link)
 - ArcGIS >9.0
 - ArcGIS Spatial Analyst Extension
 
