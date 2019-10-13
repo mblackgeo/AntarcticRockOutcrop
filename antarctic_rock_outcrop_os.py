@@ -111,8 +111,8 @@ import fiona
 # arcpy.env.overwriteOutput = True #uncomment to allow arcpy to overwrite outputs
 
 # inputs (tile list file, directory containing tiles, coastline for masking)
-landsatTileList = r"C:/path/to/landsatTilesToProcess.txt"
-landsatDirectory = r"C:/path/to/folder/of/all/landsat/tiles"
+landsatTileList = r"/home/DSA/images/scene_list.txt"
+landsatDirectory = r"/home/DSA/images/LC08_L1GT_209117_2014_0101_20170427_01_T2"
 coastMaskShpfile = r"C:/path/to/coastline.shp" 
 
 # outputs (file extension, output directory)
