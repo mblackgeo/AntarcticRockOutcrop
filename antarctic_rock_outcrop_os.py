@@ -104,6 +104,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import sys, os, time
+import rasterio as rio
 
 # set arcpy environment variables
 # arcpy.env.overwriteOutput = True #uncomment to allow arcpy to overwrite outputs
@@ -142,18 +143,30 @@ for i in range(len(tiles)):
 
         # TODO landsat file name conventions have changed. Refactor to be compatible with both
 	# grab the band data (LANDSAT-8 OLI, bands are stacked, no Panchromatic band)
+        """
 	B2 = Raster(thisTileFile + "_toa_band2.tif")  # Blue
 	B3 = Raster(thisTileFile + "_toa_band3.tif")  # Green
 	B5 = Raster(thisTileFile + "_toa_band5.tif")  # NIR
 	B6 = Raster(thisTileFile + "_toa_band6.tif")  # SWIR1
 	B10 = Raster(thisTileFile + "_toa_band10.tif") # TIRS1
+        """
 
+        # load bands with float dtypes
+	# grab the band data (LANDSAT-8 OLI, bands are stacked, no Panchromatic band)
+        B2 = rio.open(thisTileFile + "_toa_band2.tif", dtype='float32')  # Blue
+	B3 = rio.open(thisTileFile + "_toa_band3.tif", dtype='float32')  # Green
+	B5 = rio.open(thisTileFile + "_toa_band5.tif", dtype='float32')  # NIR
+	B6 = rio.open(thisTileFile + "_toa_band6.tif", dtype='float32')  # SWIR1
+	B10 = rio.open(thisTileFile + "_toa_band10.tif", dtype='float32') # TIRS1
+
+        """
 	# float each raster
 	B2 = Float(B2)
 	B3 = Float(B3)
 	B5 = Float(B5)
 	B6 = Float(B6)
 	B10 = Float(B10)
+        """
 
 	# extract by mask on coastline
 	coastMask = ExtractByMask(B2, coastMaskShpfile)
