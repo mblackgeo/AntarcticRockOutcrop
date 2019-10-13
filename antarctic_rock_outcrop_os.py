@@ -82,6 +82,12 @@ Email: martin.black@bas.ac.uk
 Date: 2015-03-11
 Version: 1.0
 
+ --- Rewritten to remove ArcGIS and ArcPy requirement ---
+ Refactorer: Sam Elkind
+ Email: selkind3@gatech.edu
+ Date: 2019-13-10
+ Version: 0.1
+
 --- License ---
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
