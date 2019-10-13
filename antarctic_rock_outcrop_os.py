@@ -117,18 +117,16 @@ coastMaskShpfile = r"C:/path/to/coastline.shp"
 outputDirectory = r"C:/path/to/outputs"
 outputFileExt   = r"_fileSuffix.tif"
 
-###############################################################################
-#checkout ArcGIS spatial analyst extension license
-arcpy.CheckOutExtension("Spatial")
-
 #create tile ID list from an ESPA style text file
+# TODO create alternative ways to source tile IDs (db query, api request, os.listdir)
 tiles = open(landsatTileList).read().splitlines()
 
 #print the start time
 startTime = time.ctime()
+# TODO add logging for script
 print "ArcPy Rock masking script started: %s" % startTime
 
-#loop through rach raster
+#loop through each raster
 for i in range(len(tiles)):
 
 	#set up a couple of filename strings we'll need later
