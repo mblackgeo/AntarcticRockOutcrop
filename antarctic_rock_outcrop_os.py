@@ -126,6 +126,7 @@ startTime = time.ctime()
 # TODO add logging for script
 print "ArcPy Rock masking script started: %s" % startTime
 
+# TODO refactor contents of loop into functions to separate io from layer processing steps
 # loop through each raster
 for i in range(len(tiles)):
 
@@ -139,6 +140,7 @@ for i in range(len(tiles)):
 	print(fmt % (i + 1, len(tiles))),
 	tic = time.time();	
 
+        # TODO landsat file name conventions have changed. Refactor to be compatible with both
 	# grab the band data (LANDSAT-8 OLI, bands are stacked, no Panchromatic band)
 	B2 = Raster(thisTileFile + "_toa_band2.tif")  # Blue
 	B3 = Raster(thisTileFile + "_toa_band3.tif")  # Green
@@ -167,21 +169,27 @@ for i in range(len(tiles)):
 	ndwi = (B3 - B5) / (B3 + B5)
 
 	# mask 1, sunlit rock
+        # TODO refactor mask thresholds to constants at top of script
 	mask1_step1 = (B10 / B2) > 0.4
 	mask1_step2 = ndsi < 0.75
 	mask1_step3 = ndwi < 0.45
 	mask1_step5 = B10 > 2550 # note this is a scaled value
+        # Calculate intersections of all sunlit masks 
 	mask1_prefinal = Int(mask1_step1) + Int(mask1_step2) + Int(mask1_step3) + Int(coastMaskBin) + Int(mask1_step5)
+        # save pixels that intersect sunlit masks
 	mask1_final = mask1_prefinal == 5
 
 	# mask 2, rock in shade
 	mask2_step1 = B2 < 2500 # note this is a scaled value
 	mask2_step2 = ndwi < 0.45
+        # Calculate intersections of all shade masks 
 	mask2_prefinal = Int(mask2_step1) + Int(mask2_step2) + Int(coastMaskBin)
+        # save pixels that intersect shade masks
 	mask2_final = mask2_prefinal == 3
 
 	# combine mask1 and mask2
 	mask_prefinal = mask1_final + mask2_final;
+        # union of sunlight and shaded masks
 	mask_final = mask_prefinal > 0
 
 	# print the processing time
