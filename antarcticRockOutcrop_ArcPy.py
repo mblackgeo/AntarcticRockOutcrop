@@ -13,7 +13,7 @@
 # Spatial Analyst Extension
 #
 # --- Usage ---
-# Please set the approapriate input and output directories on Lines 38-44 of
+# Please set the appropriate input and output directories on Lines 38-44 of
 # this script prior to running. Top of atmosphere corrected Landsat-8 
 # tiles can be downloaded from USGS ESPA at https://espa.cr.usgs.gov.
 #
