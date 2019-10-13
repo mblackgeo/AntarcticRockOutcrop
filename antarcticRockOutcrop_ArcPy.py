@@ -126,7 +126,7 @@ tiles = open(landsatTileList).read().splitlines()
 startTime = time.ctime()
 print "ArcPy Rock masking script started: %s" % startTime
 
-#loop through rach raster
+#loop through each raster
 for i in range(len(tiles)):
 
 	#set up a couple of filename strings we'll need later
