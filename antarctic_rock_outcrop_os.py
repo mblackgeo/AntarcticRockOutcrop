@@ -105,6 +105,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys, os, time
 import rasterio as rio
+import rasterio.mask as mask
 import fiona
 
 # set arcpy environment variables
@@ -164,8 +165,6 @@ for i in range(len(tiles)):
     B5 = rio.open(thisTileFile + "_B5.TIF", dtype='float32')  # NIR
     B6 = rio.open(thisTileFile + "_B6.TIF", dtype='float32')  # SWIR1
     B10 = rio.open(thisTileFile + "_B10.TIF", dtype='float32') # TIRS1
-    print(B2.count, B2.width, B2.height)
-    sys.exit()
 
     """
     # float each raster
@@ -182,7 +181,10 @@ for i in range(len(tiles)):
     coastMaskBin = coastMask > 0
     """
 
-    coastMask = rasterio.mask.mask(B2, coast_shapes, crop=True)
+    coastMask, coast_transform = mask.mask(B2, coast_shapes, crop=True)
+    print(coastMask.width, coastMask.height)
+    coastMaskBin = coastMask > 0
+    sys.exit()
     # print the coast mask
     toc = time.time()
     print(" Loaded & Coast Masked (%.02fs)." % (toc - tic))
