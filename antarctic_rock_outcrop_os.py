@@ -112,7 +112,7 @@ import fiona
 
 # inputs (tile list file, directory containing tiles, coastline for masking)
 landsatTileList = r"/home/dsa/DSA/images/scene_list.txt"
-landsatDirectory = r"/home/dsa/DSA/images/LC08_L1GT_209117_2014_0101_20170427_01_T2"
+landsatDirectory = r"/home/dsa/DSA/images/LC08_L1GT_209117_20140101_20170427_01_T2"
 coastMaskShpfile = r"/home/dsa/DSA/vectors/Coastline_high_res_polygon_v7.1.shp" 
 
 # outputs (file extension, output directory)
@@ -131,8 +131,6 @@ print("ArcPy Rock masking script started: %s" % startTime)
 # load coast mask
 with fiona.open(coastMaskShpfile, "r") as coast:
     coast_shapes = [feature["geometry"] for feature in coast]
-print(len(coast_shapes))
-sys.exit()
 
 # TODO refactor contents of loop into functions to separate io from layer processing steps
 # loop through each raster
@@ -148,6 +146,7 @@ for i in range(len(tiles)):
     print(fmt % (i + 1, len(tiles)))
     tic = time.time()
 
+
     # TODO landsat file name conventions have changed. Refactor to be compatible with both
     # grab the band data (LANDSAT-8 OLI, bands are stacked, no Panchromatic band)
     """
@@ -160,11 +159,13 @@ for i in range(len(tiles)):
 
     # load bands with float dtypes
     # grab the band data (LANDSAT-8 OLI, bands are stacked, no Panchromatic band)
-    B2 = rio.open(thisTileFile + "_toa_band2.tif", dtype='float32')  # Blue
-    B3 = rio.open(thisTileFile + "_toa_band3.tif", dtype='float32')  # Green
-    B5 = rio.open(thisTileFile + "_toa_band5.tif", dtype='float32')  # NIR
-    B6 = rio.open(thisTileFile + "_toa_band6.tif", dtype='float32')  # SWIR1
-    B10 = rio.open(thisTileFile + "_toa_band10.tif", dtype='float32') # TIRS1
+    B2 = rio.open(thisTileFile + "_B2.TIF", dtype='float32')  # Blue
+    B3 = rio.open(thisTileFile + "_B3.TIF", dtype='float32')  # Green
+    B5 = rio.open(thisTileFile + "_B5.TIF", dtype='float32')  # NIR
+    B6 = rio.open(thisTileFile + "_B6.TIF", dtype='float32')  # SWIR1
+    B10 = rio.open(thisTileFile + "_B10.TIF", dtype='float32') # TIRS1
+    print(B2.count, B2.width, B2.height)
+    sys.exit()
 
     """
     # float each raster
