@@ -1,2 +1,5 @@
 *.swp
+*.swo
 antrock/*
+.ipynb_checkpoints/*
+
