@@ -49,7 +49,11 @@ class LandsatTOACorrecter:
     def gather_correction_vars(self):
         with open(self.mtl_path, 'r') as meta:
             for i in meta.readlines():
-                print(i)
+                try:
+                    key = i[:i.index(" =")].strip(" ")
+                    print(key)
+                except ValueError as e:
+                    print(e)
 
 
 
