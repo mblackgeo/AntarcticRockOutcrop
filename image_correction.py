@@ -32,9 +32,11 @@ class LandsatTOACorrecter:
 
         # convert dict to named tuple eventually
         self.refl_vars = {}
-        self.K1 = {"K1_CONSTANT_BAND": None, "K1_CONSTANT_BAND_11": None,}
-                
-        self.K2 = {}
+        self.k1 = {}
+        self.k2 = {}
+        self.refl_mult = {}
+        self.refl_add = {}
+        self.sun_elev = 0.0
 
     def configure_paths(self):
         assert os.path.exists(self.path)
