@@ -31,12 +31,12 @@ class LandsatTOACorrecter:
         self.configure_paths()
 
         # convert dict to named tuple eventually
-        self.refl_vars = {}
-        self.k1 = {}
-        self.k2 = {}
+        self.sun_elev = 0.0
         self.refl_mult = {}
         self.refl_add = {}
-        self.sun_elev = 0.0
+        self.k1 = {}
+        self.k2 = {}
+        self.gather_correction_vars()
 
     def configure_paths(self):
         assert os.path.exists(self.path)
@@ -47,13 +47,9 @@ class LandsatTOACorrecter:
         assert os.path.exists(self.mtl_path)
 
     def gather_correction_vars(self):
-        prefix_map = {self.SUN_ELEV_PREFIX: self.sun_elev, 
-                    self.REFLECTANCE_MULT_PREFIX: self.refl_mult, 
-                    self.REFLECTANCE_ADD_PREFIX: self.refl_add,
-                    self.K1_PREFIX: self.k1, self.K2_PREFIX: self.k2}
+        prefixex = [self.SUN_ELEV_PREFIX, self.REFLECTANCE_MULT_PREFIX, 
+                    self.REFLECTANCE_ADD_PREFIX, self.K1_PREFIX, self.K2_PREFIX]
 
-        prefixes = prefix_map.keys()
-        
         with open(self.mtl_path, 'r') as meta:
             for i in meta.readlines():
                 try:
@@ -63,22 +59,25 @@ class LandsatTOACorrecter:
 
                     if key == self.SUN_ELEV_PREFIX:
                        self.sun_elev = value 
+
                     if key[:len(self.REFLECTANCE_MULT_PREFIX)] == self.REFLECTANCE_MULT_PREFIX:
                         self.refl_mult[key[len(self.REFLECTANCE_MULT_PREFIX):]] = value
+
                     if key[:len(self.REFLECTANCE_ADD_PREFIX)] == self.REFLECTANCE_ADD_PREFIX:
                         self.refl_add[key[len(self.REFLECTANCE_ADD_PREFIX):]] = value
+
+                    if key[:len(self.K1_PREFIX)] == self.K1_PREFIX:
+                        self.k1[key[len(self.K1_PREFIX):]] = value
+                    
+                    if key[:len(self.K2_PREFIX)] == self.K2_PREFIX:
+                        self.k2[key[len(self.K2_PREFIX):]] = value
                        
                 except ValueError as e:
-                    print(e)
-        print(self.sun_elev)
-        print(self.refl_mult)
-        print(self.refl_add)
-
+                    pass
 
 
 if __name__ == "__main__":
     test_img_path = "/home/dsa/DSA/images/LC82201072015017LGN00"
 
     test = LandsatTOACorrecter(test_img_path)
-    test.gather_correction_vars()
 
