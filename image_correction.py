@@ -5,6 +5,7 @@ by https://www.usgs.gov/land-resources/nli/landsat/using-usgs-landsat-level **AD
 
 """
 import os
+import rasterio
 
 
 class LandsatTOACorrecter:
@@ -43,7 +44,8 @@ class LandsatTOACorrecter:
         assert os.path.isdir(self.path)
         self.scene_id = os.path.basename(self.path)
         self.base_dir = os.path.dirname(self.path)
-        self.mtl_path = self.base_dir + "/" + self.scene_id + "/" + self.scene_id + "_MTL.txt"
+        self.file_prefix = "{}/{}/{}".format(self.base_dir, self.scene_id, self.scene_id)
+        self.mtl_path = self.file_prefix + "_MTL.txt"
         assert os.path.exists(self.mtl_path)
 
     def gather_correction_vars(self):
@@ -75,9 +77,15 @@ class LandsatTOACorrecter:
                 except ValueError as e:
                     pass
 
+    def correct_TOA_reflectance(self):
+        for i in self.refl_mult.keys():
+            band_file = self.file_prefix + "_B{}.TIF".format(i)
+            assert os.path.exists(band_file)
+
 
 if __name__ == "__main__":
     test_img_path = "/home/dsa/DSA/images/LC82201072015017LGN00"
 
     test = LandsatTOACorrecter(test_img_path)
+    test.correct_TOA_reflectance()
 
