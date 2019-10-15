@@ -10,11 +10,11 @@ import os
 class LandsatTOACorrecter:
 
     # These values are specific to MTL.txt file provided by AWS (and maybe google too?)
-    self.K1_PREFIX = "K1_CONSTANT_BAND_"
-    self.K2_PREFIX = "K2_CONSTANT_BAND_"
-    self.REFLECTANCE_MULT_PREFIX = "REFLECTANCE_MULT_BAND_"
-    self.REFLECTANCE_ADD_PREFIX = "REFLECTANCE_ADD_BAND_"
-    self.SUN_ELEV_PREFIX = "SUN_ELEVATION"
+    K1_PREFIX = "K1_CONSTANT_BAND_"
+    K2_PREFIX = "K2_CONSTANT_BAND_"
+    REFLECTANCE_MULT_PREFIX = "REFLECTANCE_MULT_BAND_"
+    REFLECTANCE_ADD_PREFIX = "REFLECTANCE_ADD_BAND_"
+    SUN_ELEV_PREFIX = "SUN_ELEVATION"
 
 
     """
@@ -47,8 +47,9 @@ class LandsatTOACorrecter:
         assert os.path.exists(self.mtl_path)
 
     def gather_correction_vars(self):
-
-        with 
+        with open(self.mtl_path, 'r') as meta:
+            for i in meta.readlines():
+                print(i)
 
 
 
@@ -56,4 +57,5 @@ if __name__ == "__main__":
     test_img_path = "/home/dsa/DSA/images/LC82201072015017LGN00"
 
     test = LandsatTOACorrecter(test_img_path)
+    test.gather_correction_vars()
 
