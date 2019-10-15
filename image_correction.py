@@ -47,15 +47,32 @@ class LandsatTOACorrecter:
         assert os.path.exists(self.mtl_path)
 
     def gather_correction_vars(self):
+        prefix_map = {self.SUN_ELEV_PREFIX: self.sun_elev, 
+                    self.REFLECTANCE_MULT_PREFIX: self.refl_mult, 
+                    self.REFLECTANCE_ADD_PREFIX: self.refl_add,
+                    self.K1_PREFIX: self.k1, self.K2_PREFIX: self.k2}
+
+        prefixes = prefix_map.keys()
+        
         with open(self.mtl_path, 'r') as meta:
             for i in meta.readlines():
                 try:
                     separator_pos = i.index(" = ")
-                    key = i[:separator_pos].strip(" ")
-                    value = i[separator_pos + 3:].strip(" ")
-                    print(key, value)
+                    key = i[:separator_pos].strip()
+                    value = i[separator_pos + 3:].strip()
+
+                    if key == self.SUN_ELEV_PREFIX:
+                       self.sun_elev = value 
+                    if key[:len(self.REFLECTANCE_MULT_PREFIX)] == self.REFLECTANCE_MULT_PREFIX:
+                        self.refl_mult[key[len(self.REFLECTANCE_MULT_PREFIX):]] = value
+                    if key[:len(self.REFLECTANCE_ADD_PREFIX)] == self.REFLECTANCE_ADD_PREFIX:
+                        self.refl_add[key[len(self.REFLECTANCE_ADD_PREFIX):]] = value
+                       
                 except ValueError as e:
                     print(e)
+        print(self.sun_elev)
+        print(self.refl_mult)
+        print(self.refl_add)
 
 
 
