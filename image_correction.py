@@ -50,8 +50,10 @@ class LandsatTOACorrecter:
         with open(self.mtl_path, 'r') as meta:
             for i in meta.readlines():
                 try:
-                    key = i[:i.index(" =")].strip(" ")
-                    print(key)
+                    separator_pos = i.index(" = ")
+                    key = i[:separator_pos].strip(" ")
+                    value = i[separator_pos + 3:].strip(" ")
+                    print(key, value)
                 except ValueError as e:
                     print(e)
 
