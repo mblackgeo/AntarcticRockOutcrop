@@ -5,7 +5,8 @@ by https://www.usgs.gov/land-resources/nli/landsat/using-usgs-landsat-level **AD
 
 """
 import os
-import rasterio
+from decimal import Decimal
+import rasterio as rio
 
 
 class LandsatTOACorrecter:
@@ -17,17 +18,16 @@ class LandsatTOACorrecter:
     REFLECTANCE_ADD_PREFIX = "REFLECTANCE_ADD_BAND_"
     SUN_ELEV_PREFIX = "SUN_ELEVATION"
 
-
     """
     @param str scene_path: The absolute path to directory of a specific landsat scene containing
                             all bands.
     """
 
-
     def __init__(self, scene_path):
         self.path = scene_path
         self.scene_id = ""
         self.base_dir = ""
+        self.file_prefix = ""
         self.mtl_path = ""
         self.configure_paths()
 
@@ -49,9 +49,6 @@ class LandsatTOACorrecter:
         assert os.path.exists(self.mtl_path)
 
     def gather_correction_vars(self):
-        prefixex = [self.SUN_ELEV_PREFIX, self.REFLECTANCE_MULT_PREFIX, 
-                    self.REFLECTANCE_ADD_PREFIX, self.K1_PREFIX, self.K2_PREFIX]
-
         with open(self.mtl_path, 'r') as meta:
             for i in meta.readlines():
                 try:
@@ -60,7 +57,7 @@ class LandsatTOACorrecter:
                     value = i[separator_pos + 3:].strip()
 
                     if key == self.SUN_ELEV_PREFIX:
-                       self.sun_elev = value 
+                        self.sun_elev = value
 
                     if key[:len(self.REFLECTANCE_MULT_PREFIX)] == self.REFLECTANCE_MULT_PREFIX:
                         self.refl_mult[key[len(self.REFLECTANCE_MULT_PREFIX):]] = value
@@ -77,15 +74,13 @@ class LandsatTOACorrecter:
                 except ValueError as e:
                     pass
 
-    def correct_TOA_reflectance(self):
+    def correct_toa_reflectance(self):
         for i in self.refl_mult.keys():
             band_file = self.file_prefix + "_B{}.TIF".format(i)
             assert os.path.exists(band_file)
+            band, meta = self.load_band(band_file)
 
-
-if __name__ == "__main__":
-    test_img_path = "/home/dsa/DSA/images/LC82201072015017LGN00"
-
-    test = LandsatTOACorrecter(test_img_path)
-    test.correct_TOA_reflectance()
-
+    @staticmethod
+    def load_band(self, path):
+        with rio.open(path, dtype=rio.float64) as band:
+            return band.read(1).astype(rio.float64), band.meta

@@ -3,4 +3,6 @@
 antrock/*
 .ipynb_checkpoints/*
 *.txt
+.idea/*
+*.pyc
 
