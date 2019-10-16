@@ -5,8 +5,8 @@ by https://www.usgs.gov/land-resources/nli/landsat/using-usgs-landsat-level **AD
 
 """
 import os
-import sys
 from decimal import Decimal
+import numpy as np
 import rasterio as rio
 
 
@@ -96,16 +96,26 @@ class LandsatTOACorrecter:
 
             band_file = self.file_prefix + "_B{}.TIF".format(k)
             output_file = self.output_prefix + "_B{}.TIF".format(k)
-            print(output_file)
             assert os.path.exists(band_file)
 
             band, meta = self.load_band(band_file)
-            print(meta)
 
             corrected_band = band * refl_mult_val + refl_add_val
-            print("band shape: {}\ncorrected shape: {}\nmeta shape:{}".format(band.shape,
-                                                                               corrected_band.shape,
-                                                                               (meta['height'], meta['width'])))
+
+            self.write_band(output_file, corrected_band, meta)
+
+    def correct_toa_brightness_temp(self):
+        for k, v in self.k1.items():
+            k1 = float(Decimal(v))
+            k2 = float(Decimal(self.k2[k]))
+
+            band_file = self.file_prefix + "_B{}.TIF".format(k)
+            output_file = self.output_prefix + "_B{}.TIF".format(k)
+            assert os.path.exists(band_file)
+
+            band, meta = self.load_band(band_file)
+
+            corrected_band = k2 / np.log((k1 / band) + 1)
 
             self.write_band(output_file, corrected_band, meta)
 
@@ -122,4 +132,4 @@ class LandsatTOACorrecter:
 
 if __name__ == "__main__":
     test = LandsatTOACorrecter("/home/dsa/DSA/images/LC82201072015017LGN00")
-    test.correct_toa_reflectance()
+    test.correct_toa_brightness_temp()
