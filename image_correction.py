@@ -5,6 +5,7 @@ by https://www.usgs.gov/land-resources/nli/landsat/using-usgs-landsat-level **AD
 
 """
 import os
+import sys
 from decimal import Decimal
 import rasterio as rio
 
@@ -29,6 +30,7 @@ class LandsatTOACorrecter:
         self.base_dir = ""
         self.file_prefix = ""
         self.mtl_path = ""
+        self.output_dir = ""
         self.configure_paths()
 
         # convert dict to named tuple eventually
@@ -47,6 +49,7 @@ class LandsatTOACorrecter:
         self.file_prefix = "{}/{}/{}".format(self.base_dir, self.scene_id, self.scene_id)
         self.mtl_path = self.file_prefix + "_MTL.txt"
         assert os.path.exists(self.mtl_path)
+        self.output_dir = "{}/corrected/{}".format(self.base_dir, self.scene_id)
 
     def gather_correction_vars(self):
         with open(self.mtl_path, 'r') as meta:
@@ -75,12 +78,26 @@ class LandsatTOACorrecter:
                     pass
 
     def correct_toa_reflectance(self):
-        for i in self.refl_mult.keys():
-            band_file = self.file_prefix + "_B{}.TIF".format(i)
+        # need to load window of panchromatic bands
+        self.refl_mult.pop("8")
+        self.refl_add.pop("8")
+        self.refl_mult.pop("9")
+        self.refl_add.pop("9")
+        for k, v in self.refl_mult.items():
+            refl_mult_val = float(Decimal(v))
+            refl_add_val = float(Decimal(self.refl_add[k]))
+
+            band_file = self.file_prefix + "_B{}.TIF".format(k)
             assert os.path.exists(band_file)
             band, meta = self.load_band(band_file)
+            corrected_band = band * refl_mult_val + refl_add_val
 
     @staticmethod
-    def load_band(self, path):
-        with rio.open(path, dtype=rio.float64) as band:
-            return band.read(1).astype(rio.float64), band.meta
+    def load_band(path):
+        with rio.open(path, dtype=rio.float32) as band:
+            return band.read(1).astype(rio.float32), band.meta
+
+
+if __name__ == "__main__":
+    test = LandsatTOACorrecter("/home/dsa/DSA/images/LC82201072015017LGN00")
+    test.correct_toa_reflectance()
