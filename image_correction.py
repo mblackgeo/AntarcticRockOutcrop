@@ -55,7 +55,7 @@ class LandsatTOACorrecter:
         self.output_dir = "{}/corrected/{}".format(self.base_dir, self.scene_id)
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        self.output_prefix = "{}/{}_".format(self.output_dir, self.scene_id)
+        self.output_prefix = "{}/{}".format(self.output_dir, self.scene_id)
 
     def gather_correction_vars(self):
         with open(self.mtl_path, 'r') as meta:
@@ -99,6 +99,7 @@ class LandsatTOACorrecter:
             assert os.path.exists(band_file)
 
             band, meta = self.load_band(band_file)
+            meta['dtype'] = band.dtype
 
             corrected_band = band * refl_mult_val + refl_add_val
 
@@ -114,6 +115,7 @@ class LandsatTOACorrecter:
             assert os.path.exists(band_file)
 
             band, meta = self.load_band(band_file)
+            meta['dtype'] = band.dtype
 
             corrected_band = k2 / np.log((k1 / band) + 1)
 
@@ -132,4 +134,5 @@ class LandsatTOACorrecter:
 
 if __name__ == "__main__":
     test = LandsatTOACorrecter("/home/dsa/DSA/images/LC82201072015017LGN00")
+    test.correct_toa_reflectance()
     test.correct_toa_brightness_temp()
