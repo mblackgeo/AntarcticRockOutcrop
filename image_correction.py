@@ -31,6 +31,7 @@ class LandsatTOACorrecter:
         self.file_prefix = ""
         self.mtl_path = ""
         self.output_dir = ""
+        self.output_prefix = ""
         self.configure_paths()
 
         # convert dict to named tuple eventually
@@ -46,10 +47,15 @@ class LandsatTOACorrecter:
         assert os.path.isdir(self.path)
         self.scene_id = os.path.basename(self.path)
         self.base_dir = os.path.dirname(self.path)
+
         self.file_prefix = "{}/{}/{}".format(self.base_dir, self.scene_id, self.scene_id)
         self.mtl_path = self.file_prefix + "_MTL.txt"
         assert os.path.exists(self.mtl_path)
+
         self.output_dir = "{}/corrected/{}".format(self.base_dir, self.scene_id)
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        self.output_prefix = "{}/{}_".format(self.output_dir, self.scene_id)
 
     def gather_correction_vars(self):
         with open(self.mtl_path, 'r') as meta:
@@ -96,6 +102,10 @@ class LandsatTOACorrecter:
     def load_band(path):
         with rio.open(path, dtype=rio.float32) as band:
             return band.read(1).astype(rio.float32), band.meta
+
+    @staticmethod
+    def write_band(path, meta):
+        with rio.open(path, 'w', **meta) as corrected:
 
 
 if __name__ == "__main__":
