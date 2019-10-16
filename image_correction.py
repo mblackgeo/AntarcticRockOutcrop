@@ -96,22 +96,28 @@ class LandsatTOACorrecter:
 
             band_file = self.file_prefix + "_B{}.TIF".format(k)
             output_file = self.output_prefix + "_B{}.TIF".format(k)
+            print(output_file)
             assert os.path.exists(band_file)
 
             band, meta = self.load_band(band_file)
+            print(meta)
+
             corrected_band = band * refl_mult_val + refl_add_val
+            print("band shape: {}\ncorrected shape: {}\nmeta shape:{}".format(band.shape,
+                                                                               corrected_band.shape,
+                                                                               (meta['height'], meta['width'])))
 
             self.write_band(output_file, corrected_band, meta)
 
     @staticmethod
     def load_band(path):
-        with rio.open(path, dtype=rio.float32) as band:
+        with rio.open(path, 'r') as band:
             return band.read(1).astype(rio.float32), band.meta
 
     @staticmethod
     def write_band(path, band, meta):
         with rio.open(path, 'w', **meta) as corrected:
-            corrected.write(band)
+            corrected.write(band.astype(meta['dtype']), 1)
 
 
 if __name__ == "__main__":
