@@ -6,6 +6,7 @@ by https://www.usgs.gov/land-resources/nli/landsat/using-usgs-landsat-level **AD
 """
 import os
 from decimal import Decimal
+import math
 import numpy as np
 import rasterio as rio
 
@@ -89,6 +90,7 @@ class LandsatTOACorrecter:
         self.refl_add.pop("8")
         self.refl_mult.pop("9")
         self.refl_add.pop("9")
+        local_solar_zenith = math.cos(math.radians(90 - float(Decimal(self.sun_elev))))
 
         for k, v in self.refl_mult.items():
             refl_mult_val = float(Decimal(v))
@@ -101,7 +103,7 @@ class LandsatTOACorrecter:
             band, meta = self.load_band(band_file)
             meta['dtype'] = band.dtype
 
-            corrected_band = band * refl_mult_val + refl_add_val
+            corrected_band = (band * refl_mult_val + refl_add_val) / local_solar_zenith
 
             self.write_band(output_file, corrected_band, meta)
 
