@@ -89,14 +89,19 @@ class LandsatTOACorrecter:
         self.refl_add.pop("8")
         self.refl_mult.pop("9")
         self.refl_add.pop("9")
+
         for k, v in self.refl_mult.items():
             refl_mult_val = float(Decimal(v))
             refl_add_val = float(Decimal(self.refl_add[k]))
 
             band_file = self.file_prefix + "_B{}.TIF".format(k)
+            output_file = self.output_prefix + "_B{}.TIF".format(k)
             assert os.path.exists(band_file)
+
             band, meta = self.load_band(band_file)
             corrected_band = band * refl_mult_val + refl_add_val
+
+            self.write_band(output_file, corrected_band, meta)
 
     @staticmethod
     def load_band(path):
@@ -104,8 +109,9 @@ class LandsatTOACorrecter:
             return band.read(1).astype(rio.float32), band.meta
 
     @staticmethod
-    def write_band(path, meta):
+    def write_band(path, band, meta):
         with rio.open(path, 'w', **meta) as corrected:
+            corrected.write(band)
 
 
 if __name__ == "__main__":
