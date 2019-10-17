@@ -3,14 +3,40 @@
 This fork aims to remove the arcpy dependency for this script and replacing it with rasterio. This will remove the requirement of an ESRI license.
 This repository contains a python script for automatically differentiating areas of rock outcrop using Landsat-8 data. The python script applies the method of Burton-Johnson, et al. (2016) to automatically identify rock outcrop areas from top of atmosphere corrected Landsat-8 tiles from Antarctica. Relevant modifications should be made for application to other Landsat datasets where band numbers may change.
 
-## Installation
+## Python3 Installation
+### Collect repositories
+1. Clone or fork this repository
+2. Clone or fork [landsat-utils](https://github.com/developmentseed/landsat-util)
+### Download Scene List
+3. Download supplementary material from [publication](http://dx.doi.org/10.5194/tc-2016-56) | ([Direct download link for tc-10-1665-2016-supplement.zip](https://www.the-cryosphere.net/10/1665/2016/tc-10-1665-2016-supplement.zip]))
+4. Unzip supplementary material and locate "Landsat Tile IDs - Differentiating snow and rock in Antarctic.txt"
+(File location in zip = "'Supplementary\ Materials'/'Landsat Tile IDs - Differentiating snow and rock in Antarctic.txt'")
+5. Write a quick script to load the text file into memory (it's a tab-delimited file) and return a list of scene ids (the values in the first column). **This serves as the input for the landsat-util/downloader.py**
+### Configure virtual environment
+6. Create a virtual environment in your base directory
+
+```
+virtual env "env_name"
+```
+
+7. Activate your virtual environment and install pip requirements **NOTE: install requirements from this repository, not landsat-utils"**
+```
+source "env_name"/bin/activate
+pip install -r requirements.txt
+```
+8. Install homura (landsat-util/downloader.py requires it). landsat-utils/requirements.txt includes versions of some packages that are no longer available.
+```
+pip install homura
+```
+You should now have everything you need to download images, correct them, and generate output from the model.
+
+## Arcpy Installation
 
 - Clone a copy of the repository, or
 - [Download the latest release](https://github.com/mblack2xl/AntarcticRockOutcrop/releases/latest) 
 
-## Requires
+## Arcpy Requirements
 
-- rasterio (add link)
 - ArcGIS >9.0
 - ArcGIS Spatial Analyst Extension
 
