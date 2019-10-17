@@ -3,14 +3,95 @@
 This fork aims to remove the arcpy dependency for this script and replacing it with rasterio. This will remove the requirement of an ESRI license.
 This repository contains a python script for automatically differentiating areas of rock outcrop using Landsat-8 data. The python script applies the method of Burton-Johnson, et al. (2016) to automatically identify rock outcrop areas from top of atmosphere corrected Landsat-8 tiles from Antarctica. Relevant modifications should be made for application to other Landsat datasets where band numbers may change.
 
-## Installation
+## Python3 Installation
+### Collect repositories
+1. Clone or fork this repository
+2. Clone or fork [landsat-utils](https://github.com/developmentseed/landsat-util)
+### Download Scene List
+3. Download supplementary material from [publication](http://dx.doi.org/10.5194/tc-2016-56) | ([Direct download link for tc-10-1665-2016-supplement.zip](https://www.the-cryosphere.net/10/1665/2016/tc-10-1665-2016-supplement.zip]))
+4. Unzip supplementary material and locate "Landsat Tile IDs - Differentiating snow and rock in Antarctic.txt"
+(File location in zip = "'Supplementary\ Materials'/'Landsat Tile IDs - Differentiating snow and rock in Antarctic.txt'")
+5. Write a quick script to load the text file into memory (it's a tab-delimited file) and return a list of scene ids (the values in the first column). **This serves as the input for the landsat-util/landsat/downloader.py**
+### Configure virtual environment
+6. Create a virtual environment in your base directory
+
+```
+virtual env "env_name"
+```
+
+7. Activate your virtual environment and install pip requirements **NOTE: install requirements from this repository, not landsat-utils"**
+```
+source "env_name"/bin/activate
+pip install -r requirements.txt
+```
+8. Install homura (landsat-util/landsat/downloader.py requires it). landsat-utils/requirements.txt includes versions of some packages that are no longer available.
+```
+pip install homura
+```
+You should now have everything you need to download images, correct them, and generate output from the model.
+
+## Proof of concept usage
+### Steps to create the output for a small section of a single landsat tile
+This proof of concept example is designed to be run on a local machine with reasonable resources (>=4 GB memory, >= 50 GB storage)
+### Download a single Landsat tile
+1. Create a script that creates an instance of the landsat-util/landsat/downloader.py Downloader class.
+  - The only necessary parameter is the download_dir which should be the string of a path to a directory with at least 2GB of storage. **The image correction and model scripts require that your image directory have the structure path/to/images/"SCENE_ID of a single image"/ e.g. path/to/images/LC82201072015017LGN00 that contains .tif files named "LC82201072015017LGN00_B#.TIF**
+  
+2. Call the Downloader.download(["scene_id"]) method on your class instance passing a list containing a single scene id from 
+the Supplementary material.
+
+### This will download a .tar.bz file into the path you specified.
+
+3. Untar the downloaded file (This might take a while)
+```
+untar xf "filename"
+```
+
+You now have a directory with a .tif file for each band and a .txt file containing the correction constants.
+
+### Convert the spectral relectance bands (1-7) to top of atmosphere reflectance and the temperature bands (10, 11) to Top of atmposphere brightness temperature.
+  
+4. Create an instance of the LandsatTOACorrecter class from image_correction.py
+  - This class should be instantiated with the path to the directory containing the landsat tile bands.
+  
+5. Call the LandsatTOACorrecter.correct_toa_reflectance() method and the LandsatTOACorrecter.correct_toa_brightness_temp()
+
+This will create a new directory "corrected" within your scene's directory with a copy of the band .tif files that have corrected values **These corrected bands are the input to the model**
+
+### Generate the model output **NOTE: The model currently only generates output for a 512 X 512 pixel segment of the full
+tile
+
+1. Create a textfile with a single line containing the scene id (this step will be removed in future versions of the model)
+
+2. Open the jupyter notebook burton_johnson_model.ipynb
+
+3. In Cell 3, 
+  - Change the values of landsatTileList to the name of the file created in step 1
+  
+  - Change the value of landsatDirectory to the directory containing the corrected bands "path/to/images/corrected/'scene id'"
+  
+ 4. Run all cells in order except for:
+  - Cell 7, first line:
+  ```
+  schema = {'geometry': 'Polygon', 'properties': {'area': 'float:13.3', 'id_img': 'int', 'id_ADD':'int'}}
+  ```
+  
+  - Cells 10-14, first line of Cell 10:
+  ```
+with shp.Reader(coastMaskShpfile) as coast:
+  ```
+
+The final two cells write the output file to the corrected image directory and a full color image of the extent for which
+the model generated. These files have suffixes "_burjo_output.tif" and "full_color_seg.tif" respectively
+
+## Arcpy Installation
 
 - Clone a copy of the repository, or
 - [Download the latest release](https://github.com/mblack2xl/AntarcticRockOutcrop/releases/latest) 
 
-## Requires
 
-- rasterio (add link)
+## Arcpy Requirements
+
 - ArcGIS >9.0
 - ArcGIS Spatial Analyst Extension
 
