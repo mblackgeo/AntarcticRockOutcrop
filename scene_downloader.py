@@ -6,8 +6,10 @@ import zipfile
 logger = logging.getLogger('scene_downloader_log')
 
 logger.setLevel(logging.DEBUG)
+if not os.path.exists(os.getcwd() + "/logs/"):
+    os.makedirs(os.getcwd() + "/logs/")
 
-fh = logging.FileHandler('scene_download.log')
+fh = logging.FileHandler(os.getcwd() + '/logs/scene_download.log')
 fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 fh.setFormatter(formatter)
@@ -27,12 +29,39 @@ def download_supplement(base_dir):
         with open(file_name, 'wb') as file:
             file.write(response.read())
 
+    logger.info("supplementary material successfully downloaded to {}".format(file_name))
+    return file_name
+
 
 def extract_scene_id_file(zip_path):
+    assert os.path.exists(zip_path)
+    base_dir = os.path.dirname(zip_path) + "/"
+    scene_dir = "Supplementary Material/"
+    scene_path = "Landsat Tile IDs - Differentiating snow and rock in Antarctic.txt"
+
     with zipfile.ZipFile(zip_path) as zf:
-        zf.extractall()
+        zf.extract(scene_dir + scene_path, base_dir)
+
+    logger.info("Zipfile extracted to {}".format(base_dir))
+
+    extracted_scene_path = base_dir + "/" + scene_dir + scene_path
+
+    clean_file_name = base_dir + "/burton_johnson_scene_ids.txt"
+
+    os.rename(extracted_scene_path, clean_file_name)
+
+    logger.info("Text file removed from {} and renamed to {}".format(extracted_scene_path, clean_file_name))
+
+    for i in os.listdir(base_dir + scene_dir):
+        os.remove(i)
+    logger.info("all files deleted from {}".format(base_dir + scene_dir))
+
+    os.rmdir(base_dir + scene_dir)
+    logger.info("directory {} removed".format(base_dir + scene_dir))
 
 
 if __name__ == "__main__":
     base_dir = "/home/dsa/DSA/image_auto"
-    download_supplement(base_dir)
+    test_file_name = base_dir + "/supplement.zip"
+    file_name = download_supplement(base_dir)
+    extract_scene_id_file(file_name)
