@@ -15,8 +15,20 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
+"""
+Given the directory in which you intend to store your landsat images, this function
+downloads the supplementary material from the Burton-Johnson et. al. study (https://www.the-cryosphere.net/10/1665/2016/)
+and saves the zip file to the specified directory
+
+@:param string base_dir: absolute or relative path to the directory in which you intend to store
+landsat 8 scenes. NOTE: If the directory does not exist, this function will create it!
+
+@:returns string file_name: The absolute or relative path where the .zip file is saved
+"""
+
 
 def download_supplement(base_dir):
+    assert base_dir is not None
     supplement_url = "https://www.the-cryosphere.net/10/1665/2016/tc-10-1665-2016-supplement.zip"
 
     if not os.path.exists(base_dir):
@@ -31,6 +43,17 @@ def download_supplement(base_dir):
 
     logger.info("supplementary material successfully downloaded to {}".format(file_name))
     return file_name
+
+
+"""
+This function unzips the supplementary material zip file, moves and renames the 
+text file containing the scene ids to the working directory, deleting the rest of the 
+extracted directory, but preserving the source zip file
+
+@:param string zip_path: the file path where the supplementary material zipfile is located.
+
+@:returns string: the absolute file path to the extracted scene id text file
+"""
 
 
 def extract_scene_id_file(zip_path):
@@ -59,9 +82,14 @@ def extract_scene_id_file(zip_path):
     os.rmdir(base_dir + scene_dir)
     logger.info("directory {} removed".format(base_dir + scene_dir))
 
+    return clean_file_name
 
+
+"""
+To use script, change base_dir to the directory where you intend to store your images
+"""
 if __name__ == "__main__":
-    base_dir = "/home/dsa/DSA/image_auto"
+    base_dir = None
     test_file_name = base_dir + "/supplement.zip"
     file_name = download_supplement(base_dir)
     extract_scene_id_file(file_name)
