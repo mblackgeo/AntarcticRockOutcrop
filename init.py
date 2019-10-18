@@ -1,9 +1,8 @@
 import logging
 import os
-import urllib.request
-import zipfile
 from utils.download_supplement_zip import download_supplement
 from utils.extract_scene_id_file import extract_scene_id_file
+from utils.load_scene_ids import load_scene_ids
 
 logger = logging.getLogger('scene_downloader_log')
 
@@ -25,5 +24,10 @@ To use script, change base_dir to the directory where you intend to store your i
 if __name__ == "__main__":
     base_dir = os.getcwd()
     test_file_name = base_dir + "/supplement.zip"
-    file_name = download_supplement(base_dir, logger)
-    extract_scene_id_file(file_name, logger)
+
+    zip_file_name = download_supplement(base_dir, logger)
+    scene_id_file = extract_scene_id_file(zip_file_name, logger)
+
+    # from this list of ordered dicts, we can store the contents in a db or pass scene ids to the landsat downloader.
+    scene_ids = load_scene_ids(scene_id_file)
+
