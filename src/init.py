@@ -1,8 +1,8 @@
 import logging
 import os
-from utils.download_supplement_zip import download_supplement
-from utils.extract_scene_id_file import extract_scene_id_file
-from utils.load_scene_ids import load_scene_ids
+from src.utils.download_supplement_zip import download_supplement
+from src.utils.extract_scene_id_file import extract_scene_id_file
+from src.utils.load_scene_ids import load_scene_ids
 
 logger = logging.getLogger('scene_downloader_log')
 
@@ -30,4 +30,5 @@ if __name__ == "__main__":
 
     # from this list of ordered dicts, we can store the contents in a db or pass scene ids to the landsat downloader.
     scene_ids = load_scene_ids(scene_id_file)
+    print(scene_ids)
 
