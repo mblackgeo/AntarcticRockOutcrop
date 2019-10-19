@@ -1,7 +1,5 @@
-import logging
 import os
 import urllib.request
-import zipfile
 
 """
 Given the directory in which you intend to store your landsat images, this function
