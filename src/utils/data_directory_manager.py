@@ -15,12 +15,21 @@ class DataDirectoryManager:
 
     SCENE_ID_FILE = "burton_johnson_scene_ids.txt"
 
+    RAW_IMAGES = "raw"
+    CORRECTED_IMAGES = "corrected"
+    OUTCROP_LABELS = "labels"
+
     def __init__(self, project_dir):
         self.project_dir = project_dir
 
         self.log_path = os.path.join(self.project_dir, self.LOG_DIR)
         self.log_file_path = os.path.join(self.log_path, self.LOG_FILE)
         self.logger = self.configure_logger()
+
+        self.raw_image_dir = os.path.join(self.project_dir, self.RAW_IMAGES)
+        self.corrected_image_dir = os.path.join(self.project_dir, self.CORRECTED_IMAGES)
+        self.label_dir = os.path.join(self.project_dir, self.OUTCROP_LABELS)
+        self.configure_data_dirs()
 
         self.zip_path = os.path.join(self.project_dir, self.ZIP_NAME)
         self.scene_id_file = os.path.join(self.project_dir, self.SCENE_ID_FILE)
@@ -39,6 +48,13 @@ class DataDirectoryManager:
         logger.addHandler(fh)
 
         return logger
+
+    def configure_data_dirs(self):
+        for i in [self.raw_image_dir, self.corrected_image_dir, self.label_dir]:
+            if not os.path.exists(i):
+                os.mkdir(i)
+                self.logger.info("Data directory created at {}".format(i))
+
 
     """
     Given the directory in which you intend to store your landsat images, this method

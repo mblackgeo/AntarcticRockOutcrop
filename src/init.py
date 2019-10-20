@@ -1,4 +1,3 @@
-import logging
 import os
 from src.utils.data_directory_manager import DataDirectoryManager
 
