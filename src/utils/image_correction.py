@@ -13,6 +13,8 @@ import rasterio as rio
 
 class LandsatTOACorrecter:
 
+    MTL_SUFFIX = "_MTL.txt"
+
     # These values are specific to MTL.txt file provided by AWS (and maybe google too?)
     K1_PREFIX = "K1_CONSTANT_BAND_"
     K2_PREFIX = "K2_CONSTANT_BAND_"
@@ -31,8 +33,6 @@ class LandsatTOACorrecter:
         self.base_dir = ""
         self.file_prefix = ""
         self.mtl_path = ""
-        self.output_dir = ""
-        self.output_prefix = ""
         self.configure_paths()
 
         # convert dict to named tuple eventually
@@ -49,14 +49,9 @@ class LandsatTOACorrecter:
         self.scene_id = os.path.basename(self.path)
         self.base_dir = os.path.dirname(self.path)
 
-        self.file_prefix = "{}/{}/{}".format(self.base_dir, self.scene_id, self.scene_id)
-        self.mtl_path = self.file_prefix + "_MTL.txt"
+        self.file_prefix = os.path.join(self.base_dir, self.scene_id, self.scene_id)
+        self.mtl_path = self.file_prefix + self.MTL_SUFFIX
         assert os.path.exists(self.mtl_path)
-
-        self.output_dir = "{}/corrected/{}".format(self.base_dir, self.scene_id)
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
-        self.output_prefix = "{}/{}".format(self.output_dir, self.scene_id)
 
     def gather_correction_vars(self):
         with open(self.mtl_path, 'r') as meta:
@@ -84,12 +79,17 @@ class LandsatTOACorrecter:
                 except ValueError as e:
                     pass
 
-    def correct_toa_reflectance(self):
+    def correct_toa_reflectance(self, output_dir):
+        scene_output_dir = os.path.join(output_dir, self.scene_id)
+        if not os.path.exists(scene_output_dir):
+            os.mkdir(scene_output_dir)
+
         # need to load window of panchromatic bands
         self.refl_mult.pop("8")
         self.refl_add.pop("8")
         self.refl_mult.pop("9")
         self.refl_add.pop("9")
+
         local_solar_zenith = math.cos(math.radians(90 - float(Decimal(self.sun_elev))))
 
         for k, v in self.refl_mult.items():
@@ -97,7 +97,7 @@ class LandsatTOACorrecter:
             refl_add_val = float(Decimal(self.refl_add[k]))
 
             band_file = self.file_prefix + "_B{}.TIF".format(k)
-            output_file = self.output_prefix + "_B{}.TIF".format(k)
+            output_file = os.path.join(scene_output_dir, self.scene_id + "_B{}.TIF".format(k))
             assert os.path.exists(band_file)
 
             band, meta = self.load_band(band_file)
@@ -107,13 +107,17 @@ class LandsatTOACorrecter:
 
             self.write_band(output_file, corrected_band, meta)
 
-    def correct_toa_brightness_temp(self):
+    def correct_toa_brightness_temp(self, output_dir):
+        scene_output_dir = os.path.join(output_dir, self.scene_id)
+        if not os.path.exists(scene_output_dir):
+            os.mkdir(scene_output_dir)
+
         for k, v in self.k1.items():
             k1 = float(Decimal(v))
             k2 = float(Decimal(self.k2[k]))
 
             band_file = self.file_prefix + "_B{}.TIF".format(k)
-            output_file = self.output_prefix + "_B{}.TIF".format(k)
+            output_file = os.path.join(output_dir, self.scene_id, self.scene_id + "_B{}.TIF".format(k))
             assert os.path.exists(band_file)
 
             band, meta = self.load_band(band_file)
@@ -132,9 +136,3 @@ class LandsatTOACorrecter:
     def write_band(path, band, meta):
         with rio.open(path, 'w', **meta) as corrected:
             corrected.write(band.astype(meta['dtype']), 1)
-
-
-if __name__ == "__main__":
-    test = LandsatTOACorrecter("/home/dsa/DSA/images/LC82201072015017LGN00")
-    test.correct_toa_reflectance()
-    test.correct_toa_brightness_temp()

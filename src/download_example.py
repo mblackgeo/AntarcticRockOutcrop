@@ -13,6 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(code_dir), "landsat-util"))
 
 from landsat.downloader import Downloader
 from src.utils.data_directory_manager import DataDirectoryManager
+from src.utils.image_correction import LandsatTOACorrecter
 
 if __name__ == "__main__":
     # project_dir = os.getcwd()
@@ -23,4 +24,8 @@ if __name__ == "__main__":
     downloader = Downloader(download_dir=dir_manager.download_dir)
     #downloader.download(test_scene)
     # this will take a while
-    dir_manager.untar_scenes(test_scene)
+    # dir_manager.untar_scenes(test_scene)
+    correcter = LandsatTOACorrecter(os.path.join(dir_manager.raw_image_dir, test_scene[0]))
+    correcter.correct_toa_brightness_temp(dir_manager.corrected_image_dir)
+    correcter.correct_toa_reflectance(dir_manager.corrected_image_dir)
+    print(dir_manager.corrected_image_dir)
