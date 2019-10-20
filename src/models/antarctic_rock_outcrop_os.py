@@ -27,6 +27,9 @@ from itertools import product
 
 import rasterio as rio
 import rasterio.windows as wnd
+import rasterio.mask as masker
+
+import fiona
 
 
 class OutcropLabeler:
@@ -43,7 +46,7 @@ class OutcropLabeler:
     SHADE_MASK_STEP_2_THRESHOLD = 0.45
     SHADE_MASK_FINAL_THRESHOLD = 3
 
-    def __init__(self, scene_path):
+    def __init__(self, scene_path, coast_path):
         self.scene_path = scene_path
         self.scene_id = os.path.basename(self.scene_path)
         self.band_prefix = os.path.join(self.scene_path, self.scene_id)
@@ -51,7 +54,7 @@ class OutcropLabeler:
         self.b10 = None
         self.b3 = None
         self.load_multiuse_bands()
-        self.coast_mask = self.load_coast_mask()
+        self.coast_mask = self.load_coast_mask(coast_path)
 
     def get_tile(self, file, width=512, height=512, col_off=0, row_off=0):
         with rio.open(file, dtype='float32') as data:
@@ -83,8 +86,11 @@ class OutcropLabeler:
         self.b10 = self.get_tile(self.band_prefix + "_B10.TIF", col_off=self.COL_OFF, row_off=self.ROW_OFF) # TIRS1
 
     # TODO create coastline mask by vectorizing coast shpfile over extent of band2
-    def load_coast_mask(self):
-        return (self.b2[0] > 0).astype(int)
+    def load_coast_mask(self, coast_shape_file):
+        with fiona.open(coast_shape_file, 'r') as shpfile:
+            shapes = [feature['geometry'] for feature in shpfile]
+        with rio.open(self.band_prefix + "_B2.TIF") as extent:
+            return (masker.mask(extent, shapes, crop=True)[0].transpose(1, 2, 0) > 0).astype(rio.uint8)
 
     def create_ndsi(self):
         b6 = self.get_tile(self.band_prefix + "_B6.TIF", col_off=self.COL_OFF, row_off=self.ROW_OFF)  # nir?
@@ -105,17 +111,15 @@ class OutcropLabeler:
         mask1_step3 = (self.create_ndwi()[0] < self.SUN_MASK_STEP_3_THRESHOLD).astype(rio.uint8)
         mask1_step5 = (self.b10[0] > self.SUN_MASK_STEP_5_THRESHOLD).astype(rio.uint8) # note this is a scaled value
         # Calculate intersections of all sunlit masks 
-        mask1_prefinal = (mask1_step1 + mask1_step2 + mask1_step3 + self.coast_mask + mask1_step5).astype(rio.uint8)
+        return ((mask1_step1 + mask1_step2 + mask1_step3 + self.coast_mask + mask1_step5) == self.SUN_MASK_FINAL_THRESHOLD).astype(rio.uint8)
 
-        # save pixels that intersect sunlit masks
-        return (mask1_prefinal == self.SUN_MASK_FINAL_THRESHOLD).astype(rio.uint8)
 
     # mask 2, rock in shade
     def create_shade_mask(self):
         mask2_step1 = (self.b2[0] < self.SHADE_MASK_STEP_1_THRESHOLD).astype(rio.uint8) # note this is a scaled value
         mask2_step2 = (self.create_ndwi()[0] < self.SHADE_MASK_STEP_2_THRESHOLD).astype(rio.uint8)
         # Calculate intersections of all shade masks
-        mask2_prefinal = (mask2_step1 + mask2_step2 + (1 - self.coast_mask)).astype(rio.uint8)
+        mask2_prefinal = (mask2_step1 + mask2_step2 + self.coast_mask).astype(rio.uint8)
         # save pixels that intersect shade masks
         return (mask2_prefinal == self.SHADE_MASK_FINAL_THRESHOLD).astype(rio.uint8)
 

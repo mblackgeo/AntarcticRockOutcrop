@@ -19,6 +19,8 @@ from models.antarctic_rock_outcrop_os import OutcropLabeler
 if __name__ == "__main__":
     # project_dir = os.getcwd()
     project_dir = "/home/dsa/DSA/test_project"
+    coast_shape_file = "/home/dsa/DSA/vectors/Coastline_high_res_polygon_v7.1.shp"
+    assert os.path.exists(coast_shape_file)
     dir_manager = DataDirectoryManager(project_dir)
 
     test_scene = [dir_manager.load_scene_ids()[0]["ID"]]
@@ -34,5 +36,5 @@ if __name__ == "__main__":
     # correcter.correct_toa_brightness_temp(dir_manager.corrected_image_dir)
     # correcter.correct_toa_reflectance(dir_manager.corrected_image_dir)
 
-    labeler = OutcropLabeler(test_scene_corrected)
+    labeler = OutcropLabeler(test_scene_corrected, coast_shape_file)
     labeler.write_mask_file(dir_manager.label_dir)
