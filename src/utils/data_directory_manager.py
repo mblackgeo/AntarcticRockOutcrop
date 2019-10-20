@@ -4,6 +4,7 @@ import logging
 import urllib.request
 import zipfile
 import csv
+import tarfile
 
 
 class DataDirectoryManager:
@@ -18,6 +19,7 @@ class DataDirectoryManager:
     RAW_IMAGES = "raw"
     CORRECTED_IMAGES = "corrected"
     OUTCROP_LABELS = "labels"
+    DOWNLOADS = "downloads"
 
     def __init__(self, project_dir):
         self.project_dir = project_dir
@@ -29,6 +31,7 @@ class DataDirectoryManager:
         self.raw_image_dir = os.path.join(self.project_dir, self.RAW_IMAGES)
         self.corrected_image_dir = os.path.join(self.project_dir, self.CORRECTED_IMAGES)
         self.label_dir = os.path.join(self.project_dir, self.OUTCROP_LABELS)
+        self.download_dir = os.path.join(self.project_dir, self.DOWNLOADS)
         self.configure_data_dirs()
 
         self.zip_path = os.path.join(self.project_dir, self.ZIP_NAME)
@@ -50,7 +53,7 @@ class DataDirectoryManager:
         return logger
 
     def configure_data_dirs(self):
-        for i in [self.raw_image_dir, self.corrected_image_dir, self.label_dir]:
+        for i in [self.raw_image_dir, self.corrected_image_dir, self.label_dir, self.download_dir]:
             if not os.path.exists(i):
                 os.mkdir(i)
                 self.logger.info("Data directory created at {}".format(i))
@@ -121,3 +124,13 @@ class DataDirectoryManager:
             reader = csv.DictReader(tab_delim, delimiter='\t')
             # list comprehension skips empty rows
             return [row for row in reader if row[list(row.keys())[0]]]
+
+    def untar_scenes(self, scene_list):
+        for i in scene_list:
+            scene_tar = os.path.join(self.download_dir, i + ".tar.bz")
+            assert os.path.exists(scene_tar)
+            raw_scene_dir = os.path.join(self.raw_image_dir, i)
+            if not os.path.exists(raw_scene_dir):
+                os.mkdir(raw_scene_dir)
+            with tarfile.open(scene_tar) as tar:
+                tar.extractall(raw_scene_dir)
