@@ -56,9 +56,10 @@ class OutcropLabeler:
     def get_tile(self, file, width=512, height=512, col_off=0, row_off=0):
         with rio.open(file, dtype='float32') as data:
             meta = data.meta.copy()
+            return data.read().transpose(1, 2, 0).astype(rio.float32), meta
 
             ncols, nrows = meta['width'], meta['height']
-            # offsets = product(range(0, ncols, width), range(0, nrows, height))
+            offsets = product(range(0, ncols, width), range(0, nrows, height))
             big_window = wnd.Window(col_off=0, row_off=0, width=ncols, height=nrows)
 
             window = wnd.Window(col_off=col_off * width, row_off=row_off * height,
@@ -69,7 +70,7 @@ class OutcropLabeler:
             meta['transform'] = transform
             meta['width'], meta['height'] = window.width, window.height
 
-            return data.read().transpose(1, 2, 0).astype(rio.float32), meta
+            return data.read(window=window).transpose(1, 2, 0).astype(rio.float32), meta
 
     # load bands with float dtypes
     # grab the band data (LANDSAT-8 OLI, bands are stacked, no Panchromatic band)
@@ -99,24 +100,24 @@ class OutcropLabeler:
 
     # mask 1, sunlit rock
     def create_sun_mask(self):
-        mask1_step1 = ((self.b10[0] / self.b2[0]) > self.SUN_MASK_STEP_1_THRESHOLD).astype(int)
-        mask1_step2 = (self.create_ndsi()[0] < self.SUN_MASK_STEP_2_THRESHOLD).astype(int)
-        mask1_step3 = (self.create_ndwi()[0] < self.SUN_MASK_STEP_3_THRESHOLD).astype(int)
-        mask1_step5 = (self.b10[0] > self.SUN_MASK_STEP_5_THRESHOLD).astype(int) # note this is a scaled value
+        mask1_step1 = ((self.b10[0] / self.b2[0]) > self.SUN_MASK_STEP_1_THRESHOLD).astype(rio.uint8)
+        mask1_step2 = (self.create_ndsi()[0] < self.SUN_MASK_STEP_2_THRESHOLD).astype(rio.uint8)
+        mask1_step3 = (self.create_ndwi()[0] < self.SUN_MASK_STEP_3_THRESHOLD).astype(rio.uint8)
+        mask1_step5 = (self.b10[0] > self.SUN_MASK_STEP_5_THRESHOLD).astype(rio.uint8) # note this is a scaled value
         # Calculate intersections of all sunlit masks 
-        mask1_prefinal = mask1_step1 + mask1_step2 + mask1_step3 + self.coast_mask + mask1_step5
+        mask1_prefinal = (mask1_step1 + mask1_step2 + mask1_step3 + self.coast_mask + mask1_step5).astype(rio.uint8)
 
         # save pixels that intersect sunlit masks
-        return (mask1_prefinal == self.SUN_MASK_FINAL_THRESHOLD).astype(int)
+        return (mask1_prefinal == self.SUN_MASK_FINAL_THRESHOLD).astype(rio.uint8)
 
     # mask 2, rock in shade
     def create_shade_mask(self):
-        mask2_step1 = (self.b2[0] < self.SHADE_MASK_STEP_1_THRESHOLD).astype(int) # note this is a scaled value
-        mask2_step2 = (self.create_ndwi()[0] < self.SHADE_MASK_STEP_2_THRESHOLD).astype(int)
+        mask2_step1 = (self.b2[0] < self.SHADE_MASK_STEP_1_THRESHOLD).astype(rio.uint8) # note this is a scaled value
+        mask2_step2 = (self.create_ndwi()[0] < self.SHADE_MASK_STEP_2_THRESHOLD).astype(rio.uint8)
         # Calculate intersections of all shade masks
-        mask2_prefinal = mask2_step1 + mask2_step2 + (1 - self.coast_mask)
+        mask2_prefinal = (mask2_step1 + mask2_step2 + (1 - self.coast_mask)).astype(rio.uint8)
         # save pixels that intersect shade masks
-        return (mask2_prefinal == self.SHADE_MASK_FINAL_THRESHOLD).astype(int)
+        return (mask2_prefinal == self.SHADE_MASK_FINAL_THRESHOLD).astype(rio.uint8)
 
     def create_final_mask(self):
         # combine mask1 and mask2
@@ -127,13 +128,12 @@ class OutcropLabeler:
     def write_mask_file(self, output_dir):
         mask = self.create_final_mask()
         meta = self.b2[1]
-        meta['dtype'] = rio.uint16
+        meta['dtype'] = rio.uint8
         meta['width'] = mask.shape[0]
         meta['height'] = mask.shape[1]
         meta['count'] = 1
         out_file = os.path.join(output_dir, self.scene_id + "_label.TIF")
 
         with rio.open(out_file, 'w', **meta) as dst:
-            print(dst)
-            print(dst.shape)
+
             dst.write(mask.astype(meta['dtype']).squeeze(), meta['count'])
