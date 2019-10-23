@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+# Landsat Util
+# License: CC0 1.0 Universal
+
+import landsat.landsat
+
+if __name__ == '__main__':
+    landsat.landsat.__main__()
