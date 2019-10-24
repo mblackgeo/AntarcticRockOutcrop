@@ -49,16 +49,23 @@ class DataDirectoryManager:
 
     def configure_logger(self):
         logger = logging.getLogger('scene_downloader_log')
+        logger.setLevel(logging.DEBUG)
 
         if not os.path.exists(self.log_path):
             os.makedirs(self.log_path)
 
-        fh = logging.FileHandler(self.log_file_path)
+        fh = logging.FileHandler(self.log_file_path, 'w')
         fh.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter("%(asctime)s - %(name)s\n%(levelname)s\n%(message)s\n")
         fh.setFormatter(formatter)
 
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        ch.setFormatter(formatter)
+
+
         logger.addHandler(fh)
+        logger.addHandler(ch)
 
         return logger
 
@@ -81,6 +88,10 @@ class DataDirectoryManager:
     """
 
     def download_supplement(self):
+        if os.path.exists(self.zip_path):
+            self.logger.info("supplement file already exists at path: {}".format(self.zip_path))
+            return
+                    
         assert self.project_dir is not None
 
         if not os.path.exists(self.project_dir):
@@ -114,9 +125,13 @@ class DataDirectoryManager:
     """
 
     def extract_scene_id_file(self):
-        assert os.path.exists(self.zip_path)
         scene_dir = "Supplementary Material"
         scene_file = "Landsat Tile IDs - Differentiating snow and rock in Antarctic.txt"
+        if os.path.exists(self.scene_id_file):
+            self.logger.info("Scene ID file already extracted at {}".format(self.scene_id_file))
+            return
+
+        assert os.path.exists(self.zip_path)
 
         with zipfile.ZipFile(self.zip_path) as zf:
             zf.extract(os.path.join(scene_dir, scene_file), self.project_dir)
