@@ -105,6 +105,9 @@ class DataDirectoryManager:
         self.logger.info("supplementary material successfully downloaded to {}".format(self.zip_path))
 
     def download_coast_shapefile(self):
+        if os.path.exists(self.coast_zip_path):
+            self.logger.info("Coast zip file already downloaded from ADD. Located at {}".format(self.coast_zip_path))
+            return
         assert self.project_dir is not None
 
         if not os.path.exists(self.project_dir):
@@ -154,6 +157,10 @@ class DataDirectoryManager:
         self.logger.info("directory {} removed".format(path_to_remove))
 
     def extract_coast_shapefile(self):
+        if os.path.exists(self.coast_shape_path):
+            self.logger.info("Coast shapefile already exists at {}".format(self.coast_shape_path))
+            return
+
         assert os.path.exists(self.coast_zip_path)
 
         with zipfile.ZipFile(self.coast_zip_path) as zf:

@@ -11,6 +11,9 @@ if __name__ == "__main__":
     base_dir = os.getcwd()
     
     dm = DataDirectoryManager(os.path.join(base_dir,"data"))
+
     dm.download_supplement()
     dm.extract_scene_id_file()
     
+    dm.download_coast_shapefile()
+    dm.extract_coast_shapefile()
