@@ -2,6 +2,8 @@ import os
 import fiona
 import rasterio as rio
 from rasterio import features
+import rasterio.mask
+import numpy as np
 
 
 """
@@ -14,7 +16,8 @@ def rasterize_label(raster_path, vector_path):
 
     with rio.open(raster_path) as base:
         meta = base.meta.copy()
-        output = (masker.mask(base, shapes, crop=True)[0] > 0).astype(rio.uint8)
+        output = (rasterio.mask.mask(base, shapes, crop=True, indexes=1)[0] > 0).astype(rio.uint8)
+        output = np.expand_dims(output, axis=0)
     return output, meta
 
 """
@@ -29,6 +32,7 @@ This function saves a raster to file
 
 def save_raster(layer, meta, name):
     meta['dtype'] = layer.dtype
+    meta['count'] = 1
     with rio.open(name, 'w', **meta) as dst:
         dst.write(layer)
 

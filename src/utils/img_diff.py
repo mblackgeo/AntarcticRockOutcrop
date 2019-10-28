@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 class OutputAnalysis:
-    COLOR_MAP = 'BuPu_r'
+    COLOR_MAP = 'Set1'
 
     def __init__(self, expected, actual):
         self.expected = expected
@@ -27,10 +27,8 @@ class OutputAnalysis:
     """
 
     def create_fig(self, arr):
-        fig, axes = plt.subplots(1,1)
-        im = axes[0].imshow(arr.squeeze(), cmap=self.COLOR_MAP)
-
-        return fig
+        plt.imshow(arr.squeeze(), cmap=self.COLOR_MAP)
+        plt.colorbar()
 
     """
     @param np array (M * N * 1) or (1 * M * N) arr: a raster to be histogrammed.
@@ -43,7 +41,6 @@ class OutputAnalysis:
 
         hist, bin_edges = np.histogram(arr, bins=[0,1,2,3])
         fig, axes = plt.subplots(1,1)
-        axes[0].bar(bin_edges, hist, width=1)
-        axes[0].xlim(bin_edges[0], bin_edges[-1])
+        axes.bar(bin_edges[:-1], hist, width=1)
 
         return fig
