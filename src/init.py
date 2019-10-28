@@ -9,8 +9,10 @@ To use script, change base_dir to the directory where you intend to store your i
 """
 if __name__ == "__main__":
     base_dir = os.getcwd()
+    data_dir = os.path.join(base_dir,"data")
+    manual_dir = "/home/dsa/DSA/images_manual"
     
-    dm = DataDirectoryManager(os.path.join(base_dir,"data"))
+    dm = DataDirectoryManager(manual_dir)
 
     dm.download_supplement()
     dm.extract_scene_id_file()

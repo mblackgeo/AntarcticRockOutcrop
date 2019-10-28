@@ -13,7 +13,7 @@ from models.antarctic_rock_outcrop_os import OutcropLabeler
 
 if __name__ == "__main__":
     project_dir = os.path.join(os.getcwd(), "data")
-    # project_dir = "/home/dsa/DSA/test_project"
+    project_dir = "/home/dsa/DSA/images_manual"
     dm = DataDirectoryManager(project_dir)
 
     # Load a scene id from file and save it as a list with len() = 1
@@ -27,15 +27,15 @@ if __name__ == "__main__":
     test_scene_corrected = os.path.join(dm.corrected_image_dir, scene_IDs[0])
 
     # Create landsat util scene downloader
-    downloader = Downloader(download_dir=dm.download_dir)
+    # downloader = Downloader(download_dir=dm.download_dir)
 
-    downloader.download(scene_IDs)
+    # downloader.download(scene_IDs)
     # this will take a while
-    dm.untar_scenes(scene_IDs)
+    # dm.untar_scenes(scene_IDs)
 
     correcter = LandsatTOACorrecter(test_scene_raw)
     correcter.correct_toa_brightness_temp(dm.corrected_image_dir)
     correcter.correct_toa_reflectance(dm.corrected_image_dir)
 
-    labeler = OutcropLabeler(test_scene_corrected, dm.coast_shape_path)
-    labeler.write_mask_file(dm.label_dir)
+    # labeler = OutcropLabeler(test_scene_corrected, dm.coast_shape_path)
+    # labeler.write_mask_file(dm.label_dir)

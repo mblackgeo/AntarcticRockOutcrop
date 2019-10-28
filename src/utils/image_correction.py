@@ -22,6 +22,9 @@ class LandsatTOACorrecter:
     REFLECTANCE_ADD_PREFIX = "REFLECTANCE_ADD_BAND_"
     SUN_ELEV_PREFIX = "SUN_ELEVATION"
 
+    REFLECTANCE_SCALE = 0.0001
+    BRIGHTNESS_TEMP_SCALE = 0.1
+
     """
     @param str scene_path: The absolute path to directory of a specific landsat scene containing
                             all bands.
@@ -84,11 +87,6 @@ class LandsatTOACorrecter:
         if not os.path.exists(scene_output_dir):
             os.mkdir(scene_output_dir)
 
-        # need to load window of panchromatic bands
-        self.refl_mult.pop("8")
-        self.refl_add.pop("8")
-        self.refl_mult.pop("9")
-        self.refl_add.pop("9")
 
         local_solar_zenith = math.cos(math.radians(90 - float(Decimal(self.sun_elev))))
 
@@ -101,10 +99,16 @@ class LandsatTOACorrecter:
             assert os.path.exists(band_file)
 
             band, meta = self.load_band(band_file)
-            meta['dtype'] = band.dtype
 
-            corrected_band = (band * refl_mult_val + refl_add_val) / local_solar_zenith
+            if k == "8":
+                # implement image downsampling
+                # meta['height'], meta['width'] = band.shape[1], band.shape[2]
+                pass
 
+            # Correction formula combinded with scaling factor to allow storage as ints
+            corrected_band = ((band * refl_mult_val + refl_add_val) / local_solar_zenith).astype(rio.float32)
+
+            meta['dtype'] = corrected_band.dtype
             self.write_band(output_file, corrected_band, meta)
 
     def correct_toa_brightness_temp(self, output_dir):
@@ -121,10 +125,10 @@ class LandsatTOACorrecter:
             assert os.path.exists(band_file)
 
             band, meta = self.load_band(band_file)
-            meta['dtype'] = band.dtype
+            # Correction formula combinded with scaling factor to allow storage as ints
+            corrected_band = (k2 / np.log((k1 / band) + 1)).astype(rio.float32)
 
-            corrected_band = k2 / np.log((k1 / band) + 1)
-
+            meta['dtype'] = corrected_band.dtype
             self.write_band(output_file, corrected_band, meta)
 
     @staticmethod
