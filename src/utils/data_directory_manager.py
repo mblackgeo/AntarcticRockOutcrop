@@ -128,6 +128,7 @@ class DataDirectoryManager:
     def untar_scenes(self, scene_list):
         for i in scene_list:
             scene_tar = os.path.join(self.download_dir, i + ".tar.bz")
+            print(scene_tar)
             assert os.path.exists(scene_tar)
             raw_scene_dir = os.path.join(self.raw_image_dir, i)
             if not os.path.exists(raw_scene_dir):
