@@ -89,6 +89,15 @@ if __name__ == "__main__":
     
 #     labeler = OutcropLabeler(test_scene_corrected, coast_shape_file)
 #     labeler.write_mask_file(dir_manager.label_dir)
+# =======
+#     data_dir = os.path.join(base_dir,"data")
+#     manual_dir = "/home/dsa/DSA/images_manual"
+    
+#     dm = DataDirectoryManager(manual_dir)
+# >>>>>>> f8f3292aab92ba89203161b3f1bdf14f78d3a094
 
-#     print(test_scene)
-#     print(dm.load_scene_ids())
+#     dm.download_supplement()
+#     dm.extract_scene_id_file()
+    
+#     dm.download_coast_shapefile()
+#     dm.extract_coast_shapefile()
