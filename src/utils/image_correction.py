@@ -1,7 +1,7 @@
 """
 Class that corrects Landsat 8 OLI reflective bands to Top of Atmosphere Reflectance
 and Thermal bands to Top of Atmosphere Brightness Temperature as defined
-by https://www.usgs.gov/land-resources/nli/landsat/using-usgs-landsat-level **ADD REST OF URL**
+by https://www.usgs.gov/land-resources/nli/landsat/using-usgs-landsat-level-1-data-product
 
 """
 import os
