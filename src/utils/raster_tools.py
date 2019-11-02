@@ -24,4 +24,4 @@ def get_window(file_path, width=512, height=512, col_off=0, row_off=0):
         meta['transform'] = transform
         meta['width'], meta['height'] = window.width, window.height
 
-        return data.read(window=window).transpose(1, 2, 0).astype(rio.float32), meta
+        return data.read(window=window).transpose(1, 2, 0), meta
