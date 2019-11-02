@@ -1,7 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
+"""
+This class can be used to calculate the differences between two binary rasters with identical spatial extent. 
+We use this to validate the outputs of our model by comparing them to the published burton-johnson rock labels.
+"""
 class OutputAnalysis:
     COLOR_MAP = 'Set1'
 
