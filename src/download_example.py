@@ -13,7 +13,7 @@ from models.antarctic_rock_outcrop_os import OutcropLabeler
 
 if __name__ == "__main__":
     project_dir = os.path.join(os.getcwd(), "data")
-    project_dir = "/home/dsa/DSA/images_manual"
+   
     dm = DataDirectoryManager(project_dir)
 
     # Load a scene id from file and save it as a list with len() = 1
